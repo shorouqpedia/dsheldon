@@ -73,7 +73,6 @@ $dataArray = json_decode($data);
             'type' => 'video',
             'videoCategoryId' => 27 ,   //education
         ));
-        echo 'hhhhhh';
 
         $videos=[];
         
@@ -140,7 +139,7 @@ $dataArray = json_decode($data);
 //    }
 
 ?>
-<?php //require_once "headers.php";
+<?php require_once "headers.php";
 
 if (isset($_GET['id']))
 {?>
@@ -183,19 +182,28 @@ if (isset($_GET['id']))
 		
 		
 <?php }
-        
+        $x=100;
+
         foreach($videos as $video) 
-        { ?>
-		<!--First Video-->
-        <div class="row" style="padding:100px; padding-left:200px; padding-bottom:0px; margin-bottom:50px;padding-top:0px;">
-<!--			<a href="--><?php //echo $video['video'] ;?><!--">-->
+        {
+                //blocking blocked video
+                $query = $con->prepare("SELECT * FROM video WHERE id = ?");
+                $query->execute(array($video['id']));
+                if ($query->rowCount() > 0)
+                {
+                    $data = $query->fetchAll(PDO::FETCH_ASSOC)[0];
+                    if ($data['blocked']==1) 
+                        continue;
+                }?>
+        <div class="row" style="padding-left:200px;margin-bottom:50px; margin-top:<?php echo $x?>;">
+
             <div>
-				<div class="col-sm-4 col-md-2">
+				<div class="col-sm-4 col-md-2" style="top:20">
 				    <div class="thumbnail">
 				    	<img style="height:80;width:100%;" src="<?php echo $video['img'];?>" alt="...">
 				    </div>
 				</div>
-				<div class="col-sm-6 col-md-8">
+				<div class="col-sm-4 col-md-8">
 					<div class="caption">
 					    <h3><?php echo $video['title'];?></h3>
 					    <p><?php echo $video['description'];?></p>
@@ -205,14 +213,13 @@ if (isset($_GET['id']))
                             <input type="hidden" name="id" value="<?php echo $video['id'];?>">
                             <input type="submit" value="Watch" class="btn btn-primary">
                         </form>
-
 					</div>
 				</div>
             </div>
 		</div>
-		<!----------------------------------------------->
-        <?php } ?>
+        <?php $x=0; } ?>
 <?php require_once "../partials/footer.php";
+
 
 
 ?>
